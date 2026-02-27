@@ -34,8 +34,8 @@ services:
 
     # Mapeia o código da aplicação para dentro do container
     # Permite edição local refletir automaticamente no container
-#    volumes:
-#      - ./backend:/var/www
+    volumes:
+      - ./backend:/var/www
 
     # Garante que esses serviços iniciem antes do app
     # (Não garante que estejam prontos, apenas iniciados)
@@ -64,6 +64,7 @@ services:
     volumes:
       - ./backend:/var/www
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend:/usr/share/nginx/html
 
     # Aguarda o container app iniciar
     depends_on:

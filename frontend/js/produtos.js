@@ -103,14 +103,17 @@ async function listarProdutos() {
         const tableBody = document.getElementById('productsBody') || document.getElementById('productTableBody');
         if (tableBody) {
             tableBody.innerHTML = '';
-            data.forEach(produto => {
+            data.forEach((produto, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>P</td>
+                    <td>${index + 1}</td>
                     <td>${produto.nome}</td>
                     <td>R$ ${Number(produto.preco).toFixed(2)}</td>
                     <td>${produto.quantidade}</td>
-                    <td class="text-end">-</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-warning me-1"> Editar</button> 
+                        <button class="btn btn-sm btn-outline-danger"> Excluir</button>
+                    </td>
                 `;
                 tableBody.appendChild(tr);
             });

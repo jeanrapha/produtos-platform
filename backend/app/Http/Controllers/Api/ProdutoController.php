@@ -38,30 +38,21 @@ class ProdutoController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        try {
+        $validated = $request->validate([
+            'nome' => 'required|string|max:255',
+            'preco' => 'required|numeric|min:0',
+            'quantidade' => 'required|integer|min:0'
+        ]);
 
-            $validated = $request->validate([
-                'nome'  => 'required|string|max:255',
-                'preco' => 'required|numeric|min:0',
-                'quantidade' => 'required|integer|min:0'
-            ]);
+        $produto = Produto::create($validated);
 
-            $produto = Produto::create($validated);
+        // Limpa cache
+        Cache::forget('produtos');
 
-            // Limpa cache
-            Cache::forget('produtos');
-
-            return response()->json([
-                'message' => 'Produto criado com sucesso',
-                'data' => $produto
-            ], 201);
-
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Erro ao criar produto',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'message' => 'Produto criado com sucesso',
+            'data' => $produto
+        ], 201);
     }
 
     /**
@@ -97,7 +88,7 @@ class ProdutoController extends Controller
             $produto = Produto::findOrFail($id);
 
             $validated = $request->validate([
-                'nome'  => 'sometimes|string|max:255',
+                'nome' => 'sometimes|string|max:255',
                 'preco' => 'sometimes|numeric|min:0',
                 'quantidade' => 'sometimes|integer|min:0'
             ]);
