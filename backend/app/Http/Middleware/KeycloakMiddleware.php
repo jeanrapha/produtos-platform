@@ -16,6 +16,11 @@ class KeycloakMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        //Liberar preflight CORS
+        if ($request->getMethod() === 'OPTIONS') {
+            return response()->json([], 200);
+        }
+
         // Verifica se o header Authorization existe
         $authHeader = $request->header('Authorization');
 

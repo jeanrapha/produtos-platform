@@ -16,6 +16,11 @@ RUN docker-php-ext-install pdo pdo_mysql
 # Evita precisar instalar manualmente
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+
+COPY . /var/www
+
+
 # Define o diretório de trabalho dentro do container
 # Todos os comandos seguintes serão executados a partir daqui
 WORKDIR /var/www
+

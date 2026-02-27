@@ -1,7 +1,26 @@
-# Define a versão da especificação do Docker Compose
-version: '3.8'
-
 services:
+
+  # ==============================
+  # Serviço ddo frontend (Nginx HTML)
+  # ==============================
+  frontend: # Constrói a imagem a partir do Dockerfile dentro da pasta frontend 
+    build: 
+      context: ./frontend # Caminho onde está o código do frontend 
+      dockerfile: Dockerfile # Dockerfile usado para build 
+    container_name: produtos_frontend 
+    
+    # Expõe porta 80 do container para a porta 80 da máquina 
+    ports: 
+      - "3000:80" 
+    
+    # Conecta o container na rede interna 
+    networks: 
+      - produtos_net
+  
+    # Mapeia o código do frontend para dentro do container
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+
 
   # ==============================
   # Serviço da aplicação (Laravel / PHP-FPM)
@@ -15,8 +34,8 @@ services:
 
     # Mapeia o código da aplicação para dentro do container
     # Permite edição local refletir automaticamente no container
-    volumes:
-      - ./backend:/var/www
+#    volumes:
+#      - ./backend:/var/www
 
     # Garante que esses serviços iniciem antes do app
     # (Não garante que estejam prontos, apenas iniciados)
@@ -70,6 +89,9 @@ services:
     ports:
       - "3306:3306"
 
+    volumes:
+      - mysql_data:/var/lib/mysql
+
     networks:
       - produtos_net
 
@@ -108,9 +130,41 @@ services:
     ports:
       - "8080:8080"
 
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+
     networks:
       - produtos_net
 
+
+
+  # ==============================
+  # PHP MyAdmin (Acesso aos bancos de dados)
+  # ==============================
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: produtos_phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    networks:
+      - produtos_net
+
+# ==============================
+# Volumes para persistência de dados
+# ==============================
+volumes:
+  mysql_data:
+    # Volume para persistência dos dados do MySQL
+    driver: local
+
+  keycloak_data:
+    # Volume para persistência dos dados do Keycloak
+    driver: local
 
 # ==============================
 # Rede interna Docker
@@ -118,3 +172,6 @@ services:
 networks:
   produtos_net:
     # Rede bridge padrão para comunicação interna
+
+
+    

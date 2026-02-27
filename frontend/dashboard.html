@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CONTROLE DE PRODUTOS - Dashboard</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: linear-gradient(135deg,#1e3c72 0%,#2a5298 50%,#4b6cb7 100%); min-height:100vh; }
+    .app-container { padding: 32px; }
+    .sidebar { min-height: 72vh; }
+    .brand { color: #ffd54f; font-weight:800; text-shadow:0 6px 18px rgba(0,0,0,0.45); }
+    .card-stats { border-radius:12px; box-shadow:0 8px 28px rgba(0,0,0,0.22); }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-transparent px-4">
+    <a class="navbar-brand brand" href="#">CONTROLE DE PRODUTOS</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link text-white" href="#">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="#">Produtos</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="#">Relatórios</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="#">Sair</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container app-container">
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="card bg-white sidebar p-3">
+          <h5 class="mb-3">Menu</h5>
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="#">Visão Geral</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Cadastrar Produto</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Categorias</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Fornecedores</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-9">
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="card card-stats p-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-1">Total Produtos</h6>
+                  <h3 id="totalProducts">—</h3>
+                </div>
+                <div class="text-muted">Hoje</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-stats p-3">
+              <h6 class="mb-1">Produtos em Estoque</h6>
+              <h3 id="inStock">—</h3>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-stats p-3">
+              <h6 class="mb-1">Produtos Esgotados</h6>
+              <h3 id="outOfStock">—</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-lg-7">
+                <h5>Produtos por Categoria</h5>
+                <canvas id="chartCategories" height="200"></canvas>
+              </div>
+              <div class="col-lg-5">
+                <h5>Distribuição de Estoque</h5>
+                <canvas id="chartStock" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h5 class="mb-3">Últimos produtos cadastrados</h5>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover">
+                <thead>
+                  <tr><th>SKU</th><th>Nome</th><th>Categoria</th><th>Estoque</th></tr>
+                </thead>
+                <tbody id="recentProducts">
+                  <!-- preenchido por script -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/keycloak-js@latest/dist/keycloak.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Verifica autenticação antes de inicializar o dashboard
+    (async function(){
+      
+      // se autenticado, inicializa componentes do dashboard
+      initDashboard();
+    })();
+
+    function initDashboard(){
+      // Demo data - substituir por dados reais via API
+      const demo = {
+        totalProducts: 128,
+        inStock: 102,
+        outOfStock: 26,
+        categories: {
+          'Eletrônicos': 45,
+          'Higiene': 20,
+          'Alimentos': 30,
+          'Moda': 18,
+          'Casa': 15
+        },
+        recent: [
+          ['P-1001','Cabo USB','Eletrônicos',120],
+          ['P-1002','Sabonete','Higiene',40],
+          ['P-1003','Arroz 5kg','Alimentos',0],
+          ['P-1004','Camiseta','Moda',8],
+          ['P-1005','Toalha','Casa',12]
+        ]
+      };
+
+      // preencher estatísticas
+      document.getElementById('totalProducts').textContent = demo.totalProducts;
+      document.getElementById('inStock').textContent = demo.inStock;
+      document.getElementById('outOfStock').textContent = demo.outOfStock;
+
+      // preencher tabela
+      const tbody = document.getElementById('recentProducts');
+      demo.recent.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      // Chart: categorias (bar)
+      const ctxCat = document.getElementById('chartCategories').getContext('2d');
+      const catLabels = Object.keys(demo.categories);
+      const catData = Object.values(demo.categories);
+      new Chart(ctxCat, {
+        type: 'bar',
+        data: {
+          labels: catLabels,
+          datasets: [{ label: 'Produtos', data: catData, backgroundColor: '#4b6cb7' }]
+        },
+        options: { responsive:true, plugins:{legend:{display:false}} }
+      });
+
+      // Chart: estoque (doughnut)
+      const ctxStock = document.getElementById('chartStock').getContext('2d');
+      new Chart(ctxStock, {
+        type: 'doughnut',
+        data: {
+          labels: ['Em estoque','Esgotados'],
+          datasets: [{ data: [demo.inStock, demo.outOfStock], backgroundColor: ['#2a5298','#ffd54f'] }]
+        },
+        options: { responsive:true }
+      });
+    }
+  </script>
+</body>
+</html>
